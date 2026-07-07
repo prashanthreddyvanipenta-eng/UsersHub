@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using UsersHub.API.DTOs;
 using UsersHub.API.DTOs.Auth;
+using UsersHub.API.DTOs.User;
 using UsersHub.API.Models;
 using UsersHub.API.Repositories.Interfaces;
 using UsersHub.API.Services.Interfaces;
@@ -93,6 +94,23 @@ namespace UsersHub.API.Services.Implementations
                 Success = true,
                 Message = "Login successful.",
                 Token = token
+            };
+        }
+
+        public async Task<UserProfileResponse?> GetProfileAsync(string userId)
+        {
+            var user = await _authRepository.GetUserByIdAsync(userId);
+
+            if (user == null)
+            {
+                return null;
+            }
+
+            return new UserProfileResponse
+            {
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Email = user.Email!
             };
         }
     }

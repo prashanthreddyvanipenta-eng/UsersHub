@@ -43,5 +43,10 @@ namespace UsersHub.API.Repositories.Implementations
         {
             return await _userManager.GetRolesAsync(user);
         }
+
+        public async Task<ApplicationUser?> GetUserByIdAsync(string userId)
+        {
+            return await _userManager.FindByIdAsync(userId);
+        }
     }
 }

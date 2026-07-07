@@ -1,5 +1,6 @@
 ﻿using UsersHub.API.DTOs;
 using UsersHub.API.DTOs.Auth;
+using UsersHub.API.DTOs.User;
 
 namespace UsersHub.API.Services.Interfaces
 {
@@ -8,5 +9,7 @@ namespace UsersHub.API.Services.Interfaces
         Task<ApiResponse> RegisterAsync(RegisterRequest request);
 
         Task<LoginResponse> LoginAsync(LoginRequest request);
+
+        Task<UserProfileResponse?> GetProfileAsync(string userId);
     }
 }

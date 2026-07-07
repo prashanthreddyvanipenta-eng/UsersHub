@@ -1,28 +1,29 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using UsersHub.API.Services.Interfaces;
 
 namespace UsersHub.API.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
+    [Route("api/[controller]")]
+    [Authorize]
     public class UsersController : ControllerBase
     {
-        [Authorize(Roles = "Admin")]
-        [HttpGet("profile")]
-        public IActionResult GetProfile()
-        {
-            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            var name = User.FindFirst(ClaimTypes.Name)?.Value;
-            var email = User.FindFirst(ClaimTypes.Email)?.Value;
+        private readonly IUserService _userService;
 
-            return Ok(new
-            {
-                UserId = userId,
-                Name = name,
-                Email = email
-            });
+        public UsersController(IUserService userService)
+        {
+            _userService = userService;
+        }
+
+        [HttpGet]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> GetAllUsers()
+        {
+            var users = await _userService.GetAllUsersAsync();
+
+            return Ok(users);
         }
     }
 }

@@ -36,6 +36,8 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<IAuthRepository, AuthRepository>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IJwtService, JwtService>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IUserService, UserService>();
 // Configure JwtSettings
 builder.Services.Configure<JwtSettings>(
     builder.Configuration.GetSection("Jwt"));

@@ -16,5 +16,7 @@ namespace UsersHub.API.Repositories.Interfaces
         Task AddUserToRoleAsync(ApplicationUser user, string role);
 
         Task<IList<string>> GetUserRolesAsync(ApplicationUser user);
+
+        Task<ApplicationUser?> GetUserByIdAsync(string userId);
     }
 }
