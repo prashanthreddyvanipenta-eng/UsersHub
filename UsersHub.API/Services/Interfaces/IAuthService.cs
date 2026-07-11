@@ -11,5 +11,7 @@ namespace UsersHub.API.Services.Interfaces
         Task<LoginResponse> LoginAsync(LoginRequest request);
 
         Task<UserProfileResponse?> GetProfileAsync(string userId);
+
+        Task<RefreshTokenResponse> RefreshTokenAsync(RefreshTokenRequest request);
     }
 }

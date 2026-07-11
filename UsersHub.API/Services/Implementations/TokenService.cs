@@ -2,18 +2,20 @@
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 using UsersHub.API.Configurations;
 using UsersHub.API.Models;
 using UsersHub.API.Services.Interfaces;
+using System.Security.Cryptography;
 
 namespace UsersHub.API.Services.Implementations
 {
-    public class JwtService : IJwtService
+    public class TokenService : ITokenService
     {
         private readonly JwtSettings _jwtSettings;
 
-        public JwtService(IOptions<JwtSettings> options)
+        public TokenService(IOptions<JwtSettings> options)
         {
             _jwtSettings = options.Value;
         }
@@ -46,5 +48,20 @@ namespace UsersHub.API.Services.Implementations
 
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
-    }
+
+
+        public RefreshToken GenerateRefreshToken(ApplicationUser user)
+            {
+                var randomBytes = RandomNumberGenerator.GetBytes(64);
+
+                return new RefreshToken
+                {
+                    UserId = user.Id,
+                    Token = Convert.ToBase64String(randomBytes),
+                    CreatedAt = DateTime.UtcNow,
+                    //ExpiresAt = DateTime.UtcNow.AddDays(7)
+                    ExpiresAt = DateTime.UtcNow.AddMinutes(1)
+                };
+            }
+}
 }

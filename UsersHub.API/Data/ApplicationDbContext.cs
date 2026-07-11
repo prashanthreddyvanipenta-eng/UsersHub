@@ -10,5 +10,7 @@ namespace UsersHub.API.Data
             : base(options)
         {
         }
+
+        public DbSet<RefreshToken> RefreshTokens { get; set; }
     }
 }

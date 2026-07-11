@@ -9,5 +9,8 @@ namespace UsersHub.API.Models
         public string LastName { get; set; } = string.Empty;
 
         public DateTime CreatedOn { get; set; } = DateTime.UtcNow;
+
+        public ICollection<RefreshToken> RefreshTokens { get; set; }
+        = new List<RefreshToken>();
     }
 }

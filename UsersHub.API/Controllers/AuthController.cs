@@ -42,5 +42,24 @@ namespace UsersHub.API.Controllers
 
             return Ok(response);
         }
+
+        [HttpGet("test")]
+        public IActionResult Test()
+        {
+            throw new Exception("Testing Global Exception Middleware");
+        }
+
+        [HttpPost("refresh")]
+        public async Task<IActionResult> RefreshToken(RefreshTokenRequest request)
+        {
+            var response = await _authService.RefreshTokenAsync(request);
+
+            if (!response.Success)
+            {
+                return BadRequest(response);
+            }
+
+            return Ok(response);
+        }
     }
 }

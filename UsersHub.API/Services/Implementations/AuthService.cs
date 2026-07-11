@@ -11,9 +11,9 @@ namespace UsersHub.API.Services.Implementations
     public class AuthService : IAuthService
     {
         private readonly IAuthRepository _authRepository;
-        private readonly IJwtService _jwtService;
+        private readonly ITokenService _jwtService;
 
-        public AuthService(IAuthRepository authRepository,IJwtService jwtService)
+        public AuthService(IAuthRepository authRepository,ITokenService jwtService )
         {
             _authRepository = authRepository;
             _jwtService = jwtService;
@@ -21,6 +21,7 @@ namespace UsersHub.API.Services.Implementations
 
         public async Task<ApiResponse> RegisterAsync(RegisterRequest request)
         {
+
             if (await _authRepository.UserExistsAsync(request.Email))
             {
                 return new ApiResponse
@@ -87,13 +88,15 @@ namespace UsersHub.API.Services.Implementations
             var roles = await _authRepository.GetUserRolesAsync(user);
             // Step 4: Generate JWT token
             var token = _jwtService.GenerateToken(user, roles);
-
+            var refreshToken = _jwtService.GenerateRefreshToken(user);
+            await _authRepository.SaveRefreshTokenAsync(refreshToken);
             // Step 5: Return success response
             return new LoginResponse
             {
                 Success = true,
                 Message = "Login successful.",
-                Token = token
+                AccessToken = token,
+                RefreshToken = refreshToken.Token
             };
         }
 
@@ -111,6 +114,47 @@ namespace UsersHub.API.Services.Implementations
                 FirstName = user.FirstName,
                 LastName = user.LastName,
                 Email = user.Email!
+            };
+        }
+
+        public async Task<RefreshTokenResponse> RefreshTokenAsync(
+    RefreshTokenRequest request)
+        {
+            var refreshToken = await _authRepository
+    .GetRefreshTokenAsync(request.RefreshToken);
+
+            if (refreshToken == null)
+            {
+                return new RefreshTokenResponse
+                {
+                    Success = false,
+                    Message = "Invalid refresh token."
+                };
+            }
+            if (refreshToken == null)
+            {
+                return new RefreshTokenResponse
+                {
+                    Success = false,
+                    Message = "Invalid refresh token."
+                };
+            }
+            if (refreshToken.IsRevoked)
+            {
+                return new RefreshTokenResponse
+                {
+                    Success = false,
+                    Message = "Refresh token has been revoked."
+                };
+            }
+            var roles = await _authRepository.GetUserRolesAsync(refreshToken.User);
+            var accessToken = _jwtService.GenerateToken(refreshToken.User, roles);
+
+            return new RefreshTokenResponse
+            {
+                Success = true,
+                Message = "Access token generated successfully.",
+                AccessToken = accessToken
             };
         }
     }

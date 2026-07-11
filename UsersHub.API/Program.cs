@@ -1,18 +1,20 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using UsersHub.API.Configurations;
 using UsersHub.API.Configurations;
 using UsersHub.API.Data;
+using UsersHub.API.Middlewares;
 using UsersHub.API.Models;
 using UsersHub.API.Repositories.Implementations;
 using UsersHub.API.Repositories.Interfaces;
 using UsersHub.API.Services.Implementations;
-using UsersHub.API.Services.Interfaces;
-using System.Text;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
-using UsersHub.API.Configurations;
 using UsersHub.API.Services.Implementations;
 using UsersHub.API.Services.Interfaces;
+using UsersHub.API.Services.Interfaces;
+using FluentValidation;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -32,10 +34,9 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-
 builder.Services.AddScoped<IAuthRepository, AuthRepository>();
 builder.Services.AddScoped<IAuthService, AuthService>();
-builder.Services.AddScoped<IJwtService, JwtService>();
+builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IUserService, UserService>();
 // Configure JwtSettings
@@ -90,7 +91,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
+app.UseMiddleware<ExceptionMiddleware>();
 app.UseAuthentication();
 app.UseAuthorization();
 

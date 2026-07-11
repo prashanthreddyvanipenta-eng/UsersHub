@@ -18,5 +18,9 @@ namespace UsersHub.API.Repositories.Interfaces
         Task<IList<string>> GetUserRolesAsync(ApplicationUser user);
 
         Task<ApplicationUser?> GetUserByIdAsync(string userId);
+
+        Task SaveRefreshTokenAsync(RefreshToken refreshToken);
+
+        Task<RefreshToken?> GetRefreshTokenAsync(string token);
     }
 }
