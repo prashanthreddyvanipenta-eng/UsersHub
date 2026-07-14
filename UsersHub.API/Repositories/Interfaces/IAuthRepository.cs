@@ -22,5 +22,7 @@ namespace UsersHub.API.Repositories.Interfaces
         Task SaveRefreshTokenAsync(RefreshToken refreshToken);
 
         Task<RefreshToken?> GetRefreshTokenAsync(string token);
+
+        Task UpdateRefreshTokenAsync(RefreshToken refreshToken);
     }
 }

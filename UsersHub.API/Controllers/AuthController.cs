@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using UsersHub.API.DTOs;
 using UsersHub.API.DTOs.Auth;
 using UsersHub.API.Services.Interfaces;
@@ -53,6 +54,20 @@ namespace UsersHub.API.Controllers
         public async Task<IActionResult> RefreshToken(RefreshTokenRequest request)
         {
             var response = await _authService.RefreshTokenAsync(request);
+
+            if (!response.Success)
+            {
+                return BadRequest(response);
+            }
+
+            return Ok(response);
+        }
+
+        [Authorize]
+        [HttpPost("logout")]
+        public async Task<IActionResult> Logout(RefreshTokenRequest request)
+        {
+            var response = await _authService.LogoutAsync(request);
 
             if (!response.Success)
             {

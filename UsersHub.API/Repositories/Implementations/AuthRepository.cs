@@ -66,5 +66,10 @@ namespace UsersHub.API.Repositories.Implementations
                 .FirstOrDefaultAsync(r => r.Token == token);
         }
 
+        public async Task UpdateRefreshTokenAsync(RefreshToken refreshToken)
+        {
+            await _context.SaveChangesAsync();
+        }
+
     }
 }

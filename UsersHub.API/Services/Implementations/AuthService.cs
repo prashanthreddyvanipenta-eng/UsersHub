@@ -117,11 +117,10 @@ namespace UsersHub.API.Services.Implementations
             };
         }
 
-        public async Task<RefreshTokenResponse> RefreshTokenAsync(
-    RefreshTokenRequest request)
+        public async Task<RefreshTokenResponse> RefreshTokenAsync(RefreshTokenRequest request)
         {
-            var refreshToken = await _authRepository
-    .GetRefreshTokenAsync(request.RefreshToken);
+            // Step 1: Get refresh token from database
+            var refreshToken = await _authRepository.GetRefreshTokenAsync(request.RefreshToken);
 
             if (refreshToken == null)
             {
@@ -131,30 +130,113 @@ namespace UsersHub.API.Services.Implementations
                     Message = "Invalid refresh token."
                 };
             }
-            if (refreshToken == null)
-            {
-                return new RefreshTokenResponse
-                {
-                    Success = false,
-                    Message = "Invalid refresh token."
-                };
-            }
+
+            // Step 2: Check if token is already revoked
             if (refreshToken.IsRevoked)
             {
                 return new RefreshTokenResponse
                 {
                     Success = false,
-                    Message = "Refresh token has been revoked."
+                    Message = "Refresh token has already been revoked."
                 };
             }
-            var roles = await _authRepository.GetUserRolesAsync(refreshToken.User);
-            var accessToken = _jwtService.GenerateToken(refreshToken.User, roles);
 
+            // Step 3: Check if token is expired
+            if (refreshToken.IsExpired)
+            {
+                return new RefreshTokenResponse
+                {
+                    Success = false,
+                    Message = "Refresh token has expired."
+                };
+            }
+
+            // Step 4: Get user
+            var user = await _authRepository.GetUserByIdAsync(refreshToken.UserId);
+
+            if (user == null)
+            {
+                return new RefreshTokenResponse
+                {
+                    Success = false,
+                    Message = "User not found."
+                };
+            }
+
+            // Step 5: Get user roles
+            var roles = await _authRepository.GetUserRolesAsync(user);
+
+            // Step 6: Revoke current refresh token
+            refreshToken.RevokedAt = DateTime.UtcNow;
+
+            await _authRepository.UpdateRefreshTokenAsync(refreshToken);
+
+            // Step 7: Generate new access token
+            var accessToken = _jwtService.GenerateToken(user, roles);
+
+            // Step 8: Generate new refresh token
+            var newRefreshToken = _jwtService.GenerateRefreshToken(user);
+
+            // Step 9: Save new refresh token
+            await _authRepository.SaveRefreshTokenAsync(newRefreshToken);
+
+            // Step 10: Return both new tokens
             return new RefreshTokenResponse
             {
                 Success = true,
-                Message = "Access token generated successfully.",
-                AccessToken = accessToken
+                Message = "Token refreshed successfully.",
+                AccessToken = accessToken,
+                RefreshToken = newRefreshToken.Token
+            };
+        }
+
+        public async Task<LogoutResponse> LogoutAsync(RefreshTokenRequest request)
+        {
+            // Step 1: Get refresh token
+            var refreshToken = await _authRepository
+                .GetRefreshTokenAsync(request.RefreshToken);
+
+            // Step 2: Validate token
+            if (refreshToken == null)
+            {
+                return new LogoutResponse
+                {
+                    Success = false,
+                    Message = "Invalid refresh token."
+                };
+            }
+
+            // Step 3: Check if already revoked
+            if (refreshToken.IsRevoked)
+            {
+                return new LogoutResponse
+                {
+                    Success = false,
+                    Message = "Refresh token has already been revoked."
+                };
+            }
+
+            // Step 4: Check if expired
+            if (refreshToken.IsExpired)
+            {
+                return new LogoutResponse
+                {
+                    Success = false,
+                    Message = "Refresh token has expired."
+                };
+            }
+
+            // Step 5: Revoke token
+            refreshToken.RevokedAt = DateTime.UtcNow;
+
+            // Step 6: Save changes
+            await _authRepository.UpdateRefreshTokenAsync(refreshToken);
+
+            // Step 7: Return success
+            return new LogoutResponse
+            {
+                Success = true,
+                Message = "Logged out successfully."
             };
         }
     }

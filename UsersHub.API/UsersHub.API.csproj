@@ -31,7 +31,6 @@
     <Folder Include="Authentication\" />
     <Folder Include="Mappings\" />
     <Folder Include="Helpers\" />
-    <Folder Include="Extentions\" />
   </ItemGroup>
 
 </Project>
