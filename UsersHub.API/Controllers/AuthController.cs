@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using UsersHub.API.DTOs;
 using UsersHub.API.DTOs.Auth;
 using UsersHub.API.Services.Interfaces;
@@ -76,5 +77,27 @@ namespace UsersHub.API.Controllers
 
             return Ok(response);
         }
+
+        [Authorize]
+        [HttpPost("LogoutAllDevices")]
+        public async Task<IActionResult> LogoutAllDevices()
+        {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (string.IsNullOrEmpty(userId))
+            {
+                return Unauthorized(new LogoutResponse
+                {
+                    Success = false,
+                    Message = "User is not authenticated."
+                });
+            }
+            var response = await _authService.LogoutAllDevicesAsync(userId);
+
+         
+
+            return Ok(response);
+        }
+
     }
 }

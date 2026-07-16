@@ -24,5 +24,9 @@ namespace UsersHub.API.Repositories.Interfaces
         Task<RefreshToken?> GetRefreshTokenAsync(string token);
 
         Task UpdateRefreshTokenAsync(RefreshToken refreshToken);
+
+        Task<List<RefreshToken>> GetActiveRefreshTokensByUserIdAsync(string userId);
+
+        Task UpdateRefreshTokensAsync(List<RefreshToken> refreshTokens);
     }
 }

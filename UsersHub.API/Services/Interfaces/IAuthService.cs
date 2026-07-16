@@ -15,5 +15,7 @@ namespace UsersHub.API.Services.Interfaces
         Task<RefreshTokenResponse> RefreshTokenAsync(RefreshTokenRequest request);
 
         Task<LogoutResponse> LogoutAsync(RefreshTokenRequest request);
+
+        Task<LogoutResponse> LogoutAllDevicesAsync(string userId);
     }
 }

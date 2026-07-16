@@ -13,7 +13,7 @@ namespace UsersHub.API.Services.Implementations
         private readonly IAuthRepository _authRepository;
         private readonly ITokenService _jwtService;
 
-        public AuthService(IAuthRepository authRepository,ITokenService jwtService )
+        public AuthService(IAuthRepository authRepository, ITokenService jwtService)
         {
             _authRepository = authRepository;
             _jwtService = jwtService;
@@ -238,6 +238,32 @@ namespace UsersHub.API.Services.Implementations
                 Success = true,
                 Message = "Logged out successfully."
             };
+        }
+
+        public async Task<LogoutResponse> LogoutAllDevicesAsync(string userId)
+        {
+            List<RefreshToken> refreshTokens = await _authRepository.GetActiveRefreshTokensByUserIdAsync(userId);
+
+            if (refreshTokens.Count == 0)
+            {
+                return new LogoutResponse
+                {
+                    Success = true,
+                    Message = "All devices are already logged out."
+                };
+            }
+            
+                foreach (RefreshToken refreshToken in refreshTokens)
+                {
+                    refreshToken.RevokedAt = DateTime.UtcNow;
+                }
+                await _authRepository.UpdateRefreshTokensAsync(refreshTokens);
+                return new LogoutResponse
+                {
+                    Success = true,
+                    Message = "All devices Logged out successfully."
+                };
+            
         }
     }
 }

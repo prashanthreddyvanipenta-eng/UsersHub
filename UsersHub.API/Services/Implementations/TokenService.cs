@@ -60,7 +60,7 @@ namespace UsersHub.API.Services.Implementations
                     Token = Convert.ToBase64String(randomBytes),
                     CreatedAt = DateTime.UtcNow,
                     //ExpiresAt = DateTime.UtcNow.AddDays(7)
-                    ExpiresAt = DateTime.UtcNow.AddMinutes(1)
+                    ExpiresAt = DateTime.UtcNow.AddMinutes(10)
                 };
             }
 }

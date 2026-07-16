@@ -71,5 +71,19 @@ namespace UsersHub.API.Repositories.Implementations
             await _context.SaveChangesAsync();
         }
 
+        public async Task<List<RefreshToken>> GetActiveRefreshTokensByUserIdAsync(string userId)
+        {
+            return await _context.RefreshTokens
+                .Where(r =>
+                    r.UserId == userId &&
+                    r.RevokedAt == null &&
+                    r.ExpiresAt > DateTime.UtcNow)
+                .ToListAsync();
+        }
+
+        public async Task UpdateRefreshTokensAsync(List<RefreshToken> refreshTokens)
+        {
+            await _context.SaveChangesAsync();
+        }
     }
 }
